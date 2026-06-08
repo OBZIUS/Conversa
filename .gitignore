@@ -1,0 +1,17 @@
+# OS Files
+.DS_Store
+
+# Environment Secrets
+.env
+
+# Xcode / Build Files
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcshareddata/
+*.mode1v3
+*.mode2v3
+*.perspectivev3
