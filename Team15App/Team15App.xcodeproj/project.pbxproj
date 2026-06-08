@@ -6,7 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		09B359052FD6BFC8002F4318 /* .env in Resources */ = {isa = PBXBuildFile; fileRef = 09B359032FD6BEDF002F4318 /* .env */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		09B359032FD6BEDF002F4318 /* .env */ = {isa = PBXFileReference; lastKnownFileType = text; path = .env; sourceTree = "<group>"; };
 		CCC0C7102FD22DE00033FDA9 /* Team15App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Team15App.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -32,6 +37,7 @@
 		CCC0C7072FD22DE00033FDA9 = {
 			isa = PBXGroup;
 			children = (
+				09B359032FD6BEDF002F4318 /* .env */,
 				CCC0C7122FD22DE00033FDA9 /* Team15App */,
 				CCC0C7112FD22DE00033FDA9 /* Products */,
 			);
@@ -109,6 +115,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				09B359052FD6BFC8002F4318 /* .env in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -247,13 +254,15 @@
 		CCC0C71C2FD22DE10033FDA9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = Conversa;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9U7DB598M5;
+				DEVELOPMENT_TEAM = MBBD9BRZ67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Conversa;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need camera access to capture your boarding pass or ticket.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need microphone access to hear speech and transcribe it for you.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need photo library access to select your boarding pass or ticket image.";
@@ -268,7 +277,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.aryan.Team15App;
+				PRODUCT_BUNDLE_IDENTIFIER = com.applepie.conversa;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -283,13 +292,15 @@
 		CCC0C71D2FD22DE10033FDA9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = Conversa;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9U7DB598M5;
+				DEVELOPMENT_TEAM = MBBD9BRZ67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Conversa;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need camera access to capture your boarding pass or ticket.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need microphone access to hear speech and transcribe it for you.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need photo library access to select your boarding pass or ticket image.";
@@ -304,7 +315,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.aryan.Team15App;
+				PRODUCT_BUNDLE_IDENTIFIER = com.applepie.conversa;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;

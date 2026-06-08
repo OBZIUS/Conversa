@@ -47,17 +47,16 @@ let seatOptions = [
 
 let disabilityOptions = [
     "No Disability",
-    "Deaf / Hard of Hearing",
-    "Blind / Low Vision",
-    "Mobility Impairment",
-    "Cognitive / Intellectual Disability",
-    "Autism Spectrum Disorder"
+    "Deaf",
+    "Hard of Hearing",
+    "Mute / Non-verbal",
+    "Speech Impairment",
+    "Deaf and Mute"
 ]
 
 // MARK: - View
 
 struct PersonalPreferencesView: View {
-    let onBack: () -> Void
     let onSkip: () -> Void
     let onConfirm: (UserPreferences) -> Void
 
@@ -75,21 +74,20 @@ struct PersonalPreferencesView: View {
                 .ignoresSafeArea()
 
             ScrollView {
-                VStack(spacing: 0) {
+                VStack(alignment: .leading, spacing: 0) {
                     // MARK: - Header
-                    VStack(spacing: 8) {
+                    VStack(alignment: .leading, spacing: 8) {
                         Text("Set Preferences")
                             .font(.system(size: 34, weight: .bold))
                             .foregroundColor(AppColors.navy)
-                            .multilineTextAlignment(.leading)
 
                         Text("This preferences will make your suggestion\nsmoother thoughout the journey!")
                             .font(.system(size: 15))
                             .foregroundColor(AppColors.navy.opacity(0.6))
-                            .multilineTextAlignment(.leading)
                             .lineSpacing(3)
                     }
-                    .padding(.top, 76)
+
+                    .padding(.top, 16)
                     .padding(.horizontal, 32)
 
                     Spacer().frame(height: 24)
@@ -163,16 +161,11 @@ struct PersonalPreferencesView: View {
                                     }
                                     .background(AppColors.fieldBg)
                                     .cornerRadius(30)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 30)
-                                            .stroke(AppColors.border, lineWidth: 1)
-                                            .allowsHitTesting(false)
-                                    )
                                 }
 
                                 // Disability
                                 FormPickerRow(
-                                    label: "Type of Disabilities",
+                                    label: "Hearing/Speaking Disability",
                                     placeholder: "eg. Deaf, Hard of Hearing, etc",
                                     options: disabilityOptions,
                                     selection: $disability
@@ -203,20 +196,17 @@ struct PersonalPreferencesView: View {
                 }
             }
 
-            // MARK: - Navigation Overlay
-            HStack {
-                BackButton(action: onBack)
-                Spacer()
-                Button("Skip") {
-                    onSkip()
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Skip") {
+                        onSkip()
+                    }
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(AppColors.navy)
                 }
-                .font(.system(size: 19, weight: .bold))
-                .foregroundColor(AppColors.navy)
-                .padding(.top, 8)
             }
-            .padding(.horizontal, 24)
-            .padding(.top, 21)
         }
+        .onTapGesture { Keyboard.dismiss() }
     }
 }
 
@@ -242,5 +232,5 @@ struct RoundedCorner: Shape {
 }
 
 #Preview {
-    PersonalPreferencesView(onBack: {}, onSkip: {}, onConfirm: { _ in })
+    PersonalPreferencesView(onSkip: {}, onConfirm: { _ in })
 }

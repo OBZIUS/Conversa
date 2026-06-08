@@ -13,7 +13,6 @@ enum UploadState: Equatable {
 // MARK: - Upload Ticket View
 
 struct UploadTicketView: View {
-    let onBack: () -> Void
     let onNext: (TicketData) -> Void
 
     @State private var uploadState: UploadState = .idle
@@ -39,21 +38,13 @@ struct UploadTicketView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // MARK: - Navigation Bar
-                HStack {
-                    BackButton(action: onBack)
-                    Spacer()
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 26)
-                .padding(.bottom, 12)
-
                 ScrollView {
                     VStack(alignment: .leading, spacing: 12) {
                         // MARK: - Title
                         Text("Upload Ticket")
                             .font(.system(size: 34, weight: .bold))
                             .foregroundColor(AppColors.navy)
+                            .padding(.top, 16)
 
                         Text("Upload a photo or document of your flight ticket or\nyour boarding pass")
                             .font(.system(size: 15))
@@ -63,28 +54,9 @@ struct UploadTicketView: View {
                         Spacer().frame(height: 16)
 
                         // MARK: - Upload Box
-                        if case .complete = uploadState {
-                            VStack {
-                                uploadBoxView
-                                    .padding(24)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 340)
-                            .background(
-                                RoundedRectangle(cornerRadius: 32)
-                                    .fill(Color.white)
-                                    .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 4)
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 32)
-                                    .strokeBorder(style: StrokeStyle(lineWidth: 1.5, dash: [6, 4]))
-                                    .foregroundColor(Color(hex: "#E0E4F5"))
-                            )
-                        } else {
-                            ScallopedCard {
-                                uploadBoxView
-                                    .padding(24)
-                            }
+                        ScallopedCard {
+                            uploadBoxView
+                                .padding(24)
                         }
 
                         Spacer().frame(height: 24)
@@ -260,7 +232,7 @@ struct UploadTicketView: View {
 
             Spacer()
         }
-        .frame(minHeight: 220)
+        .frame(maxWidth: .infinity, minHeight: 220)
     }
 
     // MARK: - Complete Box
@@ -271,10 +243,10 @@ struct UploadTicketView: View {
 
             ZStack {
                 Circle()
-                    .fill(Color(hex: "#C2EBD5"))
+                    .fill(Color(hex: "#38b000").opacity(0.4))
                     .frame(width: 72, height: 72)
                 Circle()
-                    .fill(Color(hex: "#2E7D32"))
+                    .fill(Color(hex: "#38b000"))
                     .frame(width: 48, height: 48)
                 Image(systemName: "checkmark")
                     .font(.system(size: 18, weight: .bold))
@@ -294,12 +266,16 @@ struct UploadTicketView: View {
                         .font(.system(size: 13, weight: .bold))
                 }
                 .foregroundColor(AppColors.navy)
+                .frame(width: 140, height: 32)
+                .background(Color(hex: "#E8EBF8"))
+                .cornerRadius(22)
+                
             }
             .padding(.top, 4)
 
             Spacer()
         }
-        .frame(minHeight: 220)
+        .frame(maxWidth: .infinity, minHeight: 220)
     }
 
     // MARK: - Bottom Button
@@ -332,8 +308,8 @@ struct UploadTicketView: View {
         // Simulate progress steps while OCR runs in background
         let ocrTask = Task { await OCRService.recognizeText(from: image) }
 
-        for step in stride(from: 0.1, through: 0.85, by: 0.1) {
-            try? await Task.sleep(nanoseconds: 200_000_000)
+        for step in stride(from: 0.1, through: 0.9, by: 0.09) {
+            try? await Task.sleep(nanoseconds: 100_000_000)
             await MainActor.run {
                 uploadState = .uploading(progress: step, filename: simFilename)
             }
@@ -365,8 +341,8 @@ struct UploadTicketView: View {
 
         let ocrTask = Task { await OCRService.recognizeText(fromPDF: url) }
 
-        for step in stride(from: 0.1, through: 0.85, by: 0.1) {
-            try? await Task.sleep(nanoseconds: 200_000_000)
+        for step in stride(from: 0.1, through: 0.9, by: 0.09) {
+            try? await Task.sleep(nanoseconds: 100_000_000)
             await MainActor.run {
                 uploadState = .uploading(progress: step, filename: filename)
             }
@@ -383,7 +359,7 @@ struct UploadTicketView: View {
         }
         
         // Auto-navigate to next screen after showing complete status briefly
-        try? await Task.sleep(nanoseconds: 1_200_000_000)
+        try? await Task.sleep(nanoseconds: 1_000_000_000)
         await MainActor.run {
             if uploadState == .complete(filename: filename) {
                 onNext(ticketData)
@@ -428,5 +404,5 @@ struct CameraView: UIViewControllerRepresentable {
 }
 
 #Preview {
-    UploadTicketView(onBack: {}, onNext: { _ in })
+    UploadTicketView(onNext: { _ in })
 }

@@ -40,7 +40,7 @@ extension Color {
 
 struct PrimaryButtonStyle: ButtonStyle {
     var backgroundColor: Color = AppColors.orange
-    var foregroundColor: Color = .white
+    var foregroundColor: Color = AppColors.navy
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -87,8 +87,6 @@ struct TicketField: View {
     @Binding var value: String
     var placeholder: String = ""
 
-    @FocusState private var isFocused: Bool
-
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label)
@@ -101,12 +99,6 @@ struct TicketField: View {
                 .padding(.vertical, 10)
                 .background(Color.white)
                 .cornerRadius(8)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(isFocused ? AppColors.lightBlue : AppColors.border, lineWidth: isFocused ? 2 : 1)
-                )
-                .focused($isFocused)
-                .animation(.easeInOut(duration: 0.2), value: isFocused)
         }
     }
 }
@@ -142,30 +134,8 @@ struct FormPickerRow: View {
                 .padding(.vertical, 13)
                 .background(AppColors.fieldBg)
                 .cornerRadius(30)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 30)
-                        .stroke(AppColors.border, lineWidth: 1)
-                )
             }
             .foregroundColor(AppColors.navy)
-        }
-    }
-}
-
-// MARK: - Back Button
-
-struct BackButton: View {
-    let action: () -> Void
-    var body: some View {
-        Button(action: action) {
-            ZStack {
-                Circle()
-                    .stroke(AppColors.border, lineWidth: 1)
-                    .frame(width: 38, height: 38)
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundColor(AppColors.navy)
-            }
         }
     }
 }
@@ -173,8 +143,8 @@ struct BackButton: View {
 // MARK: - Postage Stamp / Scalloped Card Shape
 
 struct ScallopedCardShape: Shape {
-    var scallopRadius: CGFloat = 4
-    var scallopSpacing: CGFloat = 12
+    var scallopRadius: CGFloat = 7
+    var scallopSpacing: CGFloat = 22
 
     func path(in rect: CGRect) -> Path {
         var path = Path()
@@ -244,13 +214,13 @@ struct ScallopedCard<Content: View>: View {
             .background(
                 ScallopedCardShape()
                     .fill(Color.white)
-                    .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 4)
+                    .shadow(color: Color.black.opacity(0.15), radius: 4, x: 2, y: 2)
             )
-            .overlay(
-                ScallopedCardShape()
-                    .stroke(AppColors.border.opacity(0.5), lineWidth: 1)
-                    .allowsHitTesting(false)
-            )
+//            .overlay(
+//                ScallopedCardShape()
+//                    .stroke(AppColors.border.opacity(0.5), lineWidth: 1)
+//                    .allowsHitTesting(false)
+//            )
     }
 }
 

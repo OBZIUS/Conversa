@@ -23,7 +23,10 @@ struct HomeView: View {
                         Image(systemName: "gearshape.fill")
                             .font(.system(size: 24))
                             .foregroundColor(AppColors.navy)
+                            .frame(width: 32, height: 32)
                     }
+                    .buttonStyle(.glass)
+                    .buttonBorderShape(.circle)
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 74)
@@ -71,7 +74,7 @@ struct HomeView: View {
                     Button(action: onContinue) {
                         Text("Continue journey")
                             .font(.system(size: 17, weight: .bold))
-                            .foregroundColor(.white)
+                            .foregroundColor(AppColors.navy)
                             .frame(maxWidth: .infinity)
                             .frame(height: 56)
                             .background(AppColors.orange)
