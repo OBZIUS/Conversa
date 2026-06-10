@@ -82,6 +82,13 @@ struct MainScreenView: View {
                     withAnimation(.spring()) {
                         sheetDetent = .height(80)
                     }
+                },
+                onStartListening: {
+                    withAnimation(.spring()) {
+                        sheetDetent = .height(80)
+                    }
+                    speech.clearTranscript()
+                    speech.startListening()
                 }
             )
         }

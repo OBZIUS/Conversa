@@ -47,7 +47,7 @@ struct HomeView: View {
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("from")
-                                .font(.system(size: 13, weight: .semibold))
+                                .font(.system(size: 15, weight: .semibold))
                                 .foregroundColor(AppColors.navy.opacity(0.4))
                             Text(ticket.from.isEmpty ? "NA" : ticket.from)
                                 .font(.system(size: 22, weight: .bold))
@@ -56,7 +56,7 @@ struct HomeView: View {
                         Spacer()
                         VStack(alignment: .trailing, spacing: 4) {
                             Text("to")
-                                .font(.system(size: 13, weight: .semibold))
+                                .font(.system(size: 15, weight: .semibold))
                                 .foregroundColor(AppColors.navy.opacity(0.4))
                             Text(ticket.to.isEmpty ? "NA" : ticket.to)
                                 .font(.system(size: 22, weight: .bold))

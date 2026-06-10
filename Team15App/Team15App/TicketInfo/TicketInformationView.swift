@@ -41,7 +41,9 @@ struct TicketInformationView: View {
                             .foregroundColor(AppColors.navy)
                             .padding(.top, 16)
 
-                        Text("Check your ticket information and edit it if there is\nwrong informations")
+                        Text(!fromSettings && ticket.wasAIParsed
+                            ? "Review your ticket information and edit it if there is\nany incorrect information"
+                            : "Check your ticket information and edit it if there is\nany incorrect information")
                             .font(.system(size: 15))
                             .foregroundColor(AppColors.navy.opacity(0.6))
                             .lineSpacing(3)

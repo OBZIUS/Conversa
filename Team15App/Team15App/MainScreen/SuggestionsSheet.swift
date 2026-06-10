@@ -10,6 +10,7 @@ struct SuggestionsSheet: View {
     @Binding var prefillText: String
     let onMessageSent: (String) -> Void
     let onDismiss: (String) -> Void
+    let onStartListening: () -> Void
 
     private static let logger = Logger(subsystem: "com.team15.conversa", category: "SuggestionsSheet")
 
@@ -76,9 +77,12 @@ struct SuggestionsSheet: View {
             refreshTask = Task { await refreshSuggestions() }
         }
         .fullScreenCover(isPresented: $showFlipText) {
-            FlipTextView(text: typedText) {
+            FlipTextView(text: typedText, onDismiss: {
                 showFlipText = false
-            }
+            }, onStartListening: {
+                showFlipText = false
+                onStartListening()
+            })
         }
         .onDisappear {
             debounceTask?.cancel()
@@ -154,7 +158,7 @@ struct SuggestionsSheet: View {
                             showEditor = true
                         } label: {
                             Text(s)
-                                .font(.system(size: 14))
+                                .font(.system(size: 15))
                                 .foregroundColor(AppColors.navy)
                                 .multilineTextAlignment(.leading)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -203,7 +207,7 @@ struct SuggestionsSheet: View {
                 .padding(.top, 16)
                 .padding(.bottom, 8)
 
-            Divider()
+//            Divider()
 
             Button {
                 showEditor = true
@@ -251,7 +255,7 @@ struct SuggestionsSheet: View {
                             showEditor = true
                         } label: {
                             Text(s)
-                                .font(.system(size: 14))
+                                .font(.system(size: 15))
                                 .foregroundColor(AppColors.navy)
                                 .multilineTextAlignment(.leading)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -280,7 +284,7 @@ struct SuggestionsSheet: View {
                     .padding(.top, 16)
                     .padding(.bottom, 8)
 
-                Divider()
+//                Divider()
 
                 ZStack(alignment: .topLeading) {
                     RoundedRectangle(cornerRadius: 16)
@@ -387,7 +391,7 @@ struct SuggestionsSheet: View {
                                             typedText = s
                                         } label: {
                                             Text(s)
-                                                .font(.system(size: 14))
+                                                .font(.system(size: 15))
                                                 .foregroundColor(AppColors.navy)
                                                 .frame(maxWidth: .infinity, alignment: .leading)
                                                 .multilineTextAlignment(.leading)
@@ -506,6 +510,7 @@ struct SuggestionsSheet: View {
         sheetDetent: .constant(.large),
         prefillText: .constant("Hi there, I am deaf."),
         onMessageSent: { _ in },
-        onDismiss: { _ in }
+        onDismiss: { _ in },
+        onStartListening: {}
     )
 }

@@ -3,11 +3,13 @@ import SwiftUI
 struct FlipTextView: View {
     let text: String
     let onDismiss: () -> Void
+    var onStartListening: (() -> Void)? = nil
 
     var body: some View {
         ZStack {
             Color.white
                 .ignoresSafeArea()
+                .onTapGesture(perform: onDismiss)
 
             FittingText(
                 text: text.isEmpty ? "Type your message first" : text,
@@ -21,8 +23,7 @@ struct FlipTextView: View {
 
             VStack {
                 Spacer()
-                HStack {
-//                    Spacer()
+                HStack(spacing: 48) {
                     Button(action: onDismiss) {
                         Image(systemName: "xmark")
                             .font(.system(size: 18, weight: .semibold))
@@ -30,8 +31,17 @@ struct FlipTextView: View {
                             .frame(width: 44, height: 44)
                             .background(AppColors.cardBg, in: Circle())
                     }
+
+                    if let onStartListening = onStartListening {
+                        Button(action: onStartListening) {
+                            Image(systemName: "mic.fill")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .frame(width: 44, height: 44)
+                                .background(AppColors.orange, in: Circle())
+                        }
+                    }
                 }
-//                Spacer()
             }
             .padding(.horizontal, 20)
             .padding(.top, 8)

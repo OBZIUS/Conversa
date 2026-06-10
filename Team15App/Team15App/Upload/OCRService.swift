@@ -51,7 +51,8 @@ struct OCRService {
         }
 
         logger.info("Attempting cloud AI parsing...")
-        if let cloudResult = await parseTicketWithAI(from: text) {
+        if var cloudResult = await parseTicketWithAI(from: text) {
+            cloudResult.wasAIParsed = true
             return cloudResult
         }
 
