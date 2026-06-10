@@ -143,7 +143,7 @@ struct OCRService {
                 ["role": "system", "content": systemPrompt],
                 ["role": "user",   "content": rawText]
             ],
-            "max_tokens": 300,
+            "max_tokens": 500,
             "temperature": 0.0
         ]
 
@@ -216,11 +216,30 @@ struct OCRService {
         guard let data = text.data(using: .utf8),
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             logger.debug("parseCloudJSON: failed to parse — text: \(text.prefix(200), privacy: .private)")
+
+            // Attempt truncated JSON recovery: close unclosed braces
+            let openBraces = text.filter { $0 == "{" }.count
+            let closeBraces = text.filter { $0 == "}" }.count
+            if openBraces > closeBraces {
+                let fixed = text + String(repeating: "}", count: openBraces - closeBraces)
+                if let fixedData = fixed.data(using: .utf8),
+                   let recovered = try? JSONSerialization.jsonObject(with: fixedData, options: .fragmentsAllowed) as? [String: Any] {
+                    logger.info("parseCloudJSON: recovered \(recovered.count) keys from truncated JSON")
+                    let ticket = buildTicket(from: recovered)
+                    return ticket.isEmpty ? nil : ticket
+                }
+                logger.debug("parseCloudJSON: truncated recovery also failed")
+            }
             return nil
         }
 
         logger.debug("parseCloudJSON: successfully parsed JSON with \(json.count) keys: \(json.keys.sorted(), privacy: .private)")
 
+        let ticket = buildTicket(from: json)
+        return ticket.isEmpty ? nil : ticket
+    }
+
+    private static func buildTicket(from json: [String: Any]) -> TicketData {
         func str(_ key: String) -> String {
             (json[key] as? String)?.trimmingCharacters(in: .whitespaces) ?? ""
         }
@@ -235,8 +254,7 @@ struct OCRService {
         ticket.seat         = str("seat")
         ticket.gate         = str("gate")
         ticket.boardingTime = str("boardingTime")
-
-        return ticket.isEmpty ? nil : ticket
+        return ticket
     }
 
     // MARK: - Rule-Based Field Parsing (Fallback)

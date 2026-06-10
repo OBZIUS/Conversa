@@ -290,7 +290,7 @@ struct UploadTicketView: View {
 
         case .complete:
             Button("Next") {
-                onNext(ticketData)
+                    onNext(ticketData)
             }
             .buttonStyle(PrimaryButtonStyle())
         }
@@ -299,36 +299,46 @@ struct UploadTicketView: View {
     // MARK: - OCR Helpers
 
     private func startOCR(image: UIImage, filename: String) async {
-        let simFilename = filename
-        // Animate progress
         await MainActor.run {
-            uploadState = .uploading(progress: 0.0, filename: simFilename)
+            uploadState = .uploading(progress: 0.0, filename: filename)
         }
 
-        // Simulate progress steps while OCR runs in background
-        let ocrTask = Task { await OCRService.recognizeText(from: image) }
-
-        for step in stride(from: 0.1, through: 0.9, by: 0.09) {
-            try? await Task.sleep(nanoseconds: 100_000_000)
-            await MainActor.run {
-                uploadState = .uploading(progress: step, filename: simFilename)
+        let progressTask = Task {
+            // Fast phase: 0% → 90% in ~2.6s
+            for step in stride(from: 0.07, through: 0.88, by: 0.07) {
+                try? await Task.sleep(nanoseconds: 200_000_000)
+                if Task.isCancelled { return }
+                await MainActor.run {
+                    uploadState = .uploading(progress: step, filename: filename)
+                }
+            }
+            // Hold phase: creep 90% → 98% while work is still in progress
+            var hold = 0.90
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 500_000_000)
+                if Task.isCancelled { return }
+                hold = min(hold + 0.01, 0.98)
+                await MainActor.run {
+                    uploadState = .uploading(progress: hold, filename: filename)
+                }
             }
         }
 
-        let result = await ocrTask.value
+        let result = await OCRService.recognizeText(from: image)
+        progressTask.cancel()
+
         await MainActor.run {
             ticketData = result
-            uploadState = .uploading(progress: 1.0, filename: simFilename)
+            uploadState = .uploading(progress: 1.0, filename: filename)
         }
         try? await Task.sleep(nanoseconds: 300_000_000)
         await MainActor.run {
-            uploadState = .complete(filename: simFilename)
+            uploadState = .complete(filename: filename)
         }
-        
-        // Auto-navigate to next screen after showing complete status briefly
+
         try? await Task.sleep(nanoseconds: 1_200_000_000)
         await MainActor.run {
-            if uploadState == .complete(filename: simFilename) {
+            if case .complete = uploadState {
                 onNext(ticketData)
             }
         }
@@ -339,16 +349,30 @@ struct UploadTicketView: View {
             uploadState = .uploading(progress: 0.0, filename: filename)
         }
 
-        let ocrTask = Task { await OCRService.recognizeText(fromPDF: url) }
-
-        for step in stride(from: 0.1, through: 0.9, by: 0.09) {
-            try? await Task.sleep(nanoseconds: 100_000_000)
-            await MainActor.run {
-                uploadState = .uploading(progress: step, filename: filename)
+        let progressTask = Task {
+            // Fast phase: 0% → 90% in ~2.6s
+            for step in stride(from: 0.07, through: 0.88, by: 0.07) {
+                try? await Task.sleep(nanoseconds: 200_000_000)
+                if Task.isCancelled { return }
+                await MainActor.run {
+                    uploadState = .uploading(progress: step, filename: filename)
+                }
+            }
+            // Hold phase: creep 90% → 98% while work is still in progress
+            var hold = 0.90
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 500_000_000)
+                if Task.isCancelled { return }
+                hold = min(hold + 0.01, 0.98)
+                await MainActor.run {
+                    uploadState = .uploading(progress: hold, filename: filename)
+                }
             }
         }
 
-        let result = await ocrTask.value
+        let result = await OCRService.recognizeText(fromPDF: url)
+        progressTask.cancel()
+
         await MainActor.run {
             ticketData = result
             uploadState = .uploading(progress: 1.0, filename: filename)
@@ -357,11 +381,10 @@ struct UploadTicketView: View {
         await MainActor.run {
             uploadState = .complete(filename: filename)
         }
-        
-        // Auto-navigate to next screen after showing complete status briefly
+
         try? await Task.sleep(nanoseconds: 1_000_000_000)
         await MainActor.run {
-            if uploadState == .complete(filename: filename) {
+            if case .complete = uploadState {
                 onNext(ticketData)
             }
         }
