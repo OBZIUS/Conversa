@@ -35,7 +35,7 @@ class SpeechService: ObservableObject {
             return false
         }
         let micGranted = await withCheckedContinuation { cont in
-            AVAudioSession.sharedInstance().requestRecordPermission { granted in
+            AVAudioApplication.requestRecordPermission { granted in
                 cont.resume(returning: granted)
             }
         }

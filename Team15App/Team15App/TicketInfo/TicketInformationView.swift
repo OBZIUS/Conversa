@@ -3,40 +3,53 @@ import SwiftUI
 struct TicketInformationView: View {
     @Binding var ticket: TicketData
     let fromSettings: Bool
-    let onBack:    () -> Void
     let onConfirm: () -> Void
+
+    @State private var departureDate = Date()
+    @State private var departureTimeDate = Date()
+    @State private var boardingTimeDateObj = Date()
+    @State private var selectedCityField: CityField? = nil
+    @State private var citySearchQuery = ""
+
+    enum CityField: Identifiable {
+        case from, to
+        var id: Self { self }
+    }
+
+    private var filteredAirports: [Airport] {
+        if citySearchQuery.isEmpty {
+            return airports
+        }
+        let query = citySearchQuery.lowercased()
+        return airports.filter {
+            $0.city.lowercased().contains(query) ||
+            $0.code.lowercased().contains(query) ||
+            $0.country.lowercased().contains(query)
+        }
+    }
 
     var body: some View {
         ZStack(alignment: .top) {
-            // Background
             AppColors.ticketBg
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // MARK: - Navigation Bar
-                HStack {
-                    BackButton(action: onBack)
-                    Spacer()
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 56)
-                .padding(.bottom, 12)
-
                 ScrollView {
                     VStack(alignment: .leading, spacing: 12) {
-                        // MARK: - Title
                         Text("Ticket Information")
                             .font(.system(size: 34, weight: .bold))
                             .foregroundColor(AppColors.navy)
+                            .padding(.top, 16)
 
-                        Text("Check your ticket information and edit it if there is\nwrong informations")
+                        Text(!fromSettings && ticket.wasAIParsed
+                            ? "Review your ticket information and edit it if there is\nany incorrect information"
+                            : "Check your ticket information and edit it if there is\nany incorrect information")
                             .font(.system(size: 15))
                             .foregroundColor(AppColors.navy.opacity(0.6))
                             .lineSpacing(3)
 
                         Spacer().frame(height: 8)
 
-                        // MARK: - Ticket Card
                         ticketCard
 
                         Spacer().frame(height: 24)
@@ -45,9 +58,14 @@ struct TicketInformationView: View {
                 }
             }
         }
+        .onTapGesture { Keyboard.dismiss() }
+        .onAppear(perform: parseTicketDates)
+        .sheet(item: $selectedCityField) { field in
+            cityPickerSheet(for: field)
+        }
     }
 
-    // MARK: - Ticket Card with Scallop Border
+    // MARK: - Ticket Card
 
     private var ticketCard: some View {
         ScallopedCard {
@@ -63,28 +81,31 @@ struct TicketInformationView: View {
                     .padding(.bottom, 20)
 
                 VStack(spacing: 14) {
-                    // Name
                     TicketDisplayField(label: "Name", value: $ticket.name, placeholder: "Passenger name")
 
-                    // From / To
                     HStack(spacing: 12) {
-                        TicketDisplayField(label: "From", value: $ticket.from, placeholder: "City (Code)")
-                        TicketDisplayField(label: "To",   value: $ticket.to,   placeholder: "City (Code)")
+                        cityField(label: "From", value: $ticket.from, field: .from)
+                        cityField(label: "To", value: $ticket.to, field: .to)
                     }
 
-                    // Date / Flight ID
                     HStack(spacing: 12) {
-                        TicketDisplayField(label: "Date",      value: $ticket.date,     placeholder: "DD Month YYYY")
                         TicketDisplayField(label: "Flight ID", value: $ticket.flightID, placeholder: "QZ123")
+                        timePickerField(
+                            label: "Boarding Time",
+                            selection: timeBinding(keyPath: \.boardingTime, stateDate: $boardingTimeDateObj)
+                        )
+                        
                     }
 
-                    // Time / Boarding Time
                     HStack(spacing: 12) {
-                        TicketDisplayField(label: "Time",          value: $ticket.time,         placeholder: "HH:MM")
-                        TicketDisplayField(label: "Boarding Time",  value: $ticket.boardingTime, placeholder: "HH:MM")
+                        datePickerField
+                        timePickerField(
+                            label: "Departure Time",
+                            selection: timeBinding(keyPath: \.boardingTime, stateDate: $departureTimeDate)
+                        )
+                        
                     }
 
-                    // Seat / Gate
                     HStack(spacing: 12) {
                         TicketDisplayField(label: "Seat", value: $ticket.seat, placeholder: "12E")
                         TicketDisplayField(label: "Gate", value: $ticket.gate, placeholder: "18")
@@ -94,7 +115,6 @@ struct TicketInformationView: View {
 
                 Spacer().frame(height: 28)
 
-                // MARK: - Action Buttons
                 Button("Confirm") {
                     onConfirm()
                 }
@@ -103,10 +123,198 @@ struct TicketInformationView: View {
                 .padding(.bottom, 28)
             }
         }
+//        .cornerRadius(0)   
+    }
+
+    // MARK: - Date Picker Field
+
+    private var datePickerField: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Date")
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(AppColors.navy.opacity(0.5))
+                .padding(.leading, 8)
+
+            DatePicker(
+                "",
+                selection: dateBinding,
+                displayedComponents: .date
+            )
+            .labelsHidden()
+            .foregroundStyle(AppColors.navy)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(AppColors.fieldBg)
+            .cornerRadius(30)
+        }
+    }
+
+    // MARK: - Time Picker Field
+
+    private func timePickerField(label: String, selection: Binding<Date>) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(AppColors.navy.opacity(0.5))
+                .padding(.leading, 8)
+
+            DatePicker("", selection: selection, displayedComponents: .hourAndMinute)
+                .labelsHidden()
+                .foregroundStyle(AppColors.navy)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(AppColors.fieldBg)
+                .cornerRadius(30)
+        }
+    }
+
+    // MARK: - City Picker Field
+
+    private func cityField(label: String, value: Binding<String>, field: CityField) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(AppColors.navy.opacity(0.5))
+                .padding(.leading, 8)
+
+            Button {
+                selectedCityField = field
+            } label: {
+                HStack {
+                    Text(value.wrappedValue.isEmpty ? "City (Code)" : value.wrappedValue)
+                        .font(.system(size: 15))
+                        .foregroundColor(value.wrappedValue.isEmpty ? Color(UIColor.placeholderText) : AppColors.navy)
+                        .lineLimit(1)
+                    Spacer()
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 11))
+                        .foregroundColor(AppColors.subtitle)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 11)
+                .background(AppColors.fieldBg)
+                .cornerRadius(30)
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    // MARK: - City Picker Sheet
+
+    private func cityPickerSheet(for field: CityField) -> some View {
+        NavigationStack {
+            List(filteredAirports) { airport in
+                Button {
+                    switch field {
+                    case .from: ticket.from = airport.display
+                    case .to: ticket.to = airport.display
+                    }
+                    selectedCityField = nil
+                    citySearchQuery = ""
+                } label: {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(airport.display)
+                            .foregroundColor(AppColors.navy)
+                        Text(airport.country)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            .searchable(
+                text: $citySearchQuery,
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: "Search city or airport code"
+            )
+            .navigationTitle(field == .from ? "Departure City" : "Arrival City")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        selectedCityField = nil
+                        citySearchQuery = ""
+                    }
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
+    }
+
+    // MARK: - Bindings
+
+    private var dateBinding: Binding<Date> {
+        Binding<Date>(
+            get: { departureDate },
+            set: { newDate in
+                departureDate = newDate
+                ticket.date = formatDate(newDate)
+            }
+        )
+    }
+
+    private func timeBinding(keyPath: WritableKeyPath<TicketData, String>, stateDate: Binding<Date>) -> Binding<Date> {
+        Binding<Date>(
+            get: { stateDate.wrappedValue },
+            set: { newDate in
+                stateDate.wrappedValue = newDate
+                ticket[keyPath: keyPath] = formatTime(newDate)
+            }
+        )
+    }
+
+    // MARK: - Date Helpers
+
+    private func parseTicketDates() {
+        let dateFormats = ["d MMMM yyyy", "dd MMMM yyyy", "MMMM d, yyyy", "yyyy-MM-dd"]
+        for format in dateFormats {
+            let df = DateFormatter()
+            df.dateFormat = format
+            df.locale = Locale(identifier: "en_US_POSIX")
+            if let parsed = df.date(from: ticket.date) {
+                departureDate = parsed
+                break
+            }
+        }
+
+        if let parsed = parseTime(ticket.time) {
+            departureTimeDate = parsed
+        }
+        if let parsed = parseTime(ticket.boardingTime) {
+            boardingTimeDateObj = parsed
+        }
+    }
+
+    private func parseTime(_ string: String) -> Date? {
+        guard !string.isEmpty else { return nil }
+        let formats = ["HH:mm", "h:mm a", "HHmm"]
+        for format in formats {
+            let df = DateFormatter()
+            df.dateFormat = format
+            df.locale = Locale(identifier: "en_US_POSIX")
+            if let parsed = df.date(from: string) {
+                return parsed
+            }
+        }
+        return nil
+    }
+
+    private func formatDate(_ date: Date) -> String {
+        let df = DateFormatter()
+        df.dateFormat = "d MMMM yyyy"
+        df.locale = Locale(identifier: "en_US_POSIX")
+        return df.string(from: date)
+    }
+
+    private func formatTime(_ date: Date) -> String {
+        let df = DateFormatter()
+        df.dateFormat = "HH:mm"
+        return df.string(from: date)
     }
 }
 
-// MARK: - Editable/ReadOnly Ticket Field
+// MARK: - Editable Ticket Field (kept for text-based fields)
 
 struct TicketDisplayField: View {
     let label: String
@@ -127,11 +335,6 @@ struct TicketDisplayField: View {
                 .padding(.vertical, 11)
                 .background(AppColors.fieldBg)
                 .cornerRadius(30)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 30)
-                        .stroke(AppColors.border, lineWidth: 1)
-                        .allowsHitTesting(false)
-                )
         }
     }
 }
@@ -144,7 +347,6 @@ struct TicketDisplayField: View {
             seat: "12E", gate: "18", boardingTime: "11:30"
         )),
         fromSettings: false,
-        onBack:    {},
         onConfirm: {}
     )
 }

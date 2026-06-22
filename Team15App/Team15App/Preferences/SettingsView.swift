@@ -2,8 +2,8 @@ import SwiftUI
 
 struct SettingsView: View {
     @Binding var preferences: UserPreferences
-    let onBack: () -> Void
     let onEditTicket: () -> Void
+    let onReset: () -> Void
 
     @State private var showContactSheet = false
     @State private var tempCountryCode: String = "+62"
@@ -16,15 +16,6 @@ struct SettingsView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // MARK: - Navigation Bar
-                HStack {
-                    BackButton(action: onBack)
-                    Spacer()
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 56)
-                .padding(.bottom, 12)
-
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
                         // MARK: - Title
@@ -74,12 +65,12 @@ struct SettingsView: View {
                             VStack(spacing: 0) {
                                 // Row 1: Meal Preferences
                                 HStack {
-                                    Text("Meal Prefences")
+                                    Text("Meal/Dietary Restriction")
                                         .font(.system(size: 16, weight: .semibold))
                                         .foregroundColor(AppColors.navy)
                                     Spacer()
                                     Menu {
-                                        ForEach(["Lactose intolerance", "Gluten intolerance", "Vegetarianism", "Veganism", "Diabetes", "Allergy"], id: \.self) { option in
+                                        ForEach(mealOptions, id: \.self) { option in
                                             Button(action: { preferences.meal = option }) {
                                                 HStack {
                                                     Text(option)
@@ -109,12 +100,12 @@ struct SettingsView: View {
 
                                 // Row 2: Seating Position
                                 HStack {
-                                    Text("Seating Position")
+                                    Text("Seat Preferences")
                                         .font(.system(size: 16, weight: .semibold))
                                         .foregroundColor(AppColors.navy)
                                     Spacer()
                                     Menu {
-                                        ForEach(["Window", "Middle", "Aisle"], id: \.self) { option in
+                                        ForEach(seatOptions, id: \.self) { option in
                                             Button(action: { preferences.seat = option }) {
                                                 HStack {
                                                     Text(option)
@@ -173,12 +164,12 @@ struct SettingsView: View {
 
                                 // Row 4: Type of Disability
                                 HStack {
-                                    Text("Type of Disabilty")
+                                    Text("Hearing/Speaking Disability")
                                         .font(.system(size: 16, weight: .semibold))
                                         .foregroundColor(AppColors.navy)
                                     Spacer()
                                     Menu {
-                                        ForEach(["SNHL", "Conductive", "Mixed", "ANSD"], id: \.self) { option in
+                                        ForEach(disabilityOptions, id: \.self) { option in
                                             Button(action: { preferences.disability = option }) {
                                                 HStack {
                                                     Text(option)
@@ -295,11 +286,6 @@ struct EmergencyContactEditSheet: View {
                     }
                     .background(Color.white)
                     .cornerRadius(30)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 30)
-                            .stroke(AppColors.border, lineWidth: 1)
-                            .allowsHitTesting(false)
-                    )
 
                     Text("Add your emergency contact phone number")
                         .font(.system(size: 12))
@@ -325,5 +311,6 @@ struct EmergencyContactEditSheet: View {
                 .padding(.bottom, 24)
             }
         }
+        .onTapGesture { Keyboard.dismiss() }
     }
 }

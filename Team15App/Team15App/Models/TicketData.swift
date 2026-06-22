@@ -12,6 +12,7 @@ struct TicketData: Equatable {
     var seat: String = ""
     var gate: String = ""
     var boardingTime: String = ""
+    var wasAIParsed: Bool = false
 
     /// Returns true if every field is empty (OCR produced no useful data)
     var isEmpty: Bool {
